@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Retriever: Learning Content-Style Representation as a Token-Level Bipartite Graph.">
+  <meta name="keywords" content="Content-style decomposed representation, Zero-shot voice conversion, Style transfer, Transformer, Unsupervised learning">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retriever: Learning Content-Style Representation as a Token-Level Bipartite Graph</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+
+
+
+  </script>
+  <style>
+  .hr {width: 100%; height: 1px; margin: 48px 0; background-color: #d6dbdf;}
+  </style>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Retriever: Learning Content-Style Representation as a Token-Level Bipartite Graph</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=bvSAvkcAAAAJ&hl=en">Dacheng Yin</a><sup>1*</sup>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?hl=en&user=fDHUk18AAAAJ">Xuanchi Ren</a><sup>2*</sup>,</span>
+            <span class="author-block">
+              <a href="https://www.microsoft.com/en-us/research/people/cluo/">Chong Luo</a><sup>3</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://www.microsoft.com/en-us/research/people/yuwwan/">Yuwang Wang</a><sup>3</sup>,
+            </span>
+            <span class="author-block">
+              <a href="http://staff.ustc.edu.cn/~zwxiong/">Zhiwei Xiong</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=_cUfvYQAAAAJ&hl=en">Wenjun Zeng</a><sup>4</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>University of Science and Technology of China,</span>
+            <span class="author-block"><sup>2</sup>HKUST,</span>
+            <span class="author-block"><sup>3</sup>Microsoft Research Asia,</span>
+            <span class="author-block"><sup>4</sup>EIT</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://openreview.net/pdf?id=AXWygMvuT6Q"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/xrenaa/Retriever"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser_audio" autoplay muted loop height="100%">
+        <source src="videos/audio.mp4"
+                type="video/mp4">
+      </video>
+
+      <div style="padding: 12px;"></div>
+
+      <video id="teaser_image" autoplay muted loop height="100%">
+        <source src="videos/image.mp4"
+                type="video/mp4">
+      </video>
+
+      <h2 class="subtitle has-text-centered">
+        <strong>Retriever</strong> is a <i>modal-agnostic</i> content-style disentanglement framework.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            This paper addresses the unsupervised learning of content-style decomposed representation. We first give a definition of style and then model the content-style representation as a token-level bipartite graph. An unsupervised framework, named <strong>Retriever</strong>, is proposed to learn such representations.
+            First, a cross-attention module is employed to retrieve permutation invariant (P.I.) information, defined as style, from the input data. Second, a vector quantization (VQ) module is used, together with man-induced constraints, to produce interpretable content tokens. Last, an innovative link attention module serves as the decoder to reconstruct data from the decomposed content and style, with the help of the linking keys. Being  <strong>modal-agnostic</strong>, the proposed Retriever is evaluated in both speech and image domains. The state-of-the-art zero-shot voice conversion performance confirms the disentangling ability of our framework. Top performance is also achieved in the part discovery task for images, verifying the interpretability of our representation. In addition, the vivid part-based style transfer quality demonstrates the potential of Retriever to support various fascinating generative tasks.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-two-thirds">
+        <h2 class="title is-3">Method</h2>
+        <div class="content has-text-justified">
+          <p>
+            The framework is called "<strong>Retriever</strong>" because of its dual-retrieval operations: the cross-attention module retrieves style for content-style separation, and the link attention module retrieves content-specific style for data reconstruction.
+          </p>
+          <p>
+            In this paper, style is defined as permutation invariant (P.I.) information. The first retrieval, serving as style encoder, is permutation invariant to the input tokens, thus blocking any non-P.I. information to pass through it. To prevent style information from leaking into the content representation, we use VQ information bottleneck in the content branch.
+          </p>
+          <div class="column">
+            <img src="imgs/model.PNG" />
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!--<section class="section">-->
+
+<!--  <div class="container is-max-desktop">-->
+
+
+<!--    <h2 class="title is-3">Learned representation</h2>-->
+<!--    <h3 class="title is-4">Speech Domain</h3>-->
+<!--      <div class="columns is-centered">-->
+<!--        <div class="column">-->
+<!--          &lt;!&ndash; Learned representaton. &ndash;&gt;-->
+<!--          <div class="content">-->
+<!--              <h4 class="title is-5">Content codes</h4>-->
+<!--                <p>-->
+<!--                  Visualization of VQ codes, decoder link attention map, and the corresponding Mel-spectrum.-->
+<!--                   In VQ group #0, codes for adjacent tokens are highly consistent, and the changes of codes are well aligned with ground-truth phoneme change. The VQ group #1 switch more frequently as they capture more detailed residual variations within each phoneme.-->
+<!--                </p>-->
+<!--                <img src="imgs/audio/linkattn_VQcodes_mel_phn_calibri1.png"-->
+<!--                       class="interpolation-image"-->
+<!--                       alt="Interpolate start reference image."/>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash;/ Visual Effects. &ndash;&gt;-->
+
+<!--        &lt;!&ndash; Matting. &ndash;&gt;-->
+<!--        <div class="column">-->
+<!--          &lt;!&ndash; Learned representaton. &ndash;&gt;-->
+<!--          <div class="content">-->
+<!--              <h4 class="title is-5">Bipartite graph</h4>-->
+<!--                <p>-->
+<!--                  Co-occurrence map between ground-truth phoneme and style tokens. Strong co-occurrence is labeled with phoneme names.-->
+<!--                </p>-->
+<!--                <img src="imgs/audio/co-occurrence-crop-axis.PNG"-->
+<!--                       class="interpolation-image"-->
+<!--                        alt="Interpolate start reference image."/>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      <h3 class="title is-5">Style tokens t-SNE</h3>-->
+<!--      <p>Our style representation consists of multiple style vectors, most of which show clear clustered patterns according to speaker id, even for unseen speakers.</p>-->
+<!--      <p>Here we show four typical style vectors which correspond to the style of nasal consonant (NG), voiceless consonant (T), voiced con-sonant (Z), and vowel (IH). Different speakers are labeled in different colors, all of which are unseen during training.  We see that different speakers are in different clusters.</p>-->
+<!--      <br />-->
+<!--      <div class="columns is-centered">-->
+<!--        <div class="column is-full">-->
+<!--          &lt;!&ndash; Learned representaton. &ndash;&gt;-->
+<!--          <div class="content">-->
+<!--            <img src="imgs/audio/style_space_visualization.png"-->
+<!--                     class="interpolation-image"-->
+<!--                      alt="Interpolate start reference image."/>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--&lt;!&ndash;    <div class="columns is-centered">&ndash;&gt;-->
+<!--&lt;!&ndash;        <div class="column">&ndash;&gt;-->
+<!--&lt;!&ndash;          &lt;!&ndash; Learned representaton. &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;          <div class="content">&ndash;&gt;-->
+<!--&lt;!&ndash;            <img src="imgs/audio/style_space_visualization/style_space_NG.png"&ndash;&gt;-->
+<!--&lt;!&ndash;                     class="interpolation-image"&ndash;&gt;-->
+<!--&lt;!&ndash;                      alt="Interpolate start reference image."/>&ndash;&gt;-->
+<!--&lt;!&ndash;          </div>&ndash;&gt;-->
+<!--&lt;!&ndash;        </div>&ndash;&gt;-->
+<!--&lt;!&ndash;        <div class="column">&ndash;&gt;-->
+<!--&lt;!&ndash;          &lt;!&ndash; Learned representaton. &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;          <div class="content">&ndash;&gt;-->
+<!--&lt;!&ndash;            <img src="imgs/audio/style_space_visualization/style_space_T.png"&ndash;&gt;-->
+<!--&lt;!&ndash;                     class="interpolation-image"&ndash;&gt;-->
+<!--&lt;!&ndash;                      alt="Interpolate start reference image."/>&ndash;&gt;-->
+<!--&lt;!&ndash;          </div>&ndash;&gt;-->
+<!--&lt;!&ndash;        </div>&ndash;&gt;-->
+<!--&lt;!&ndash;      </div>&ndash;&gt;-->
+<!--&lt;!&ndash;      <div class="columns is-centered">&ndash;&gt;-->
+<!--&lt;!&ndash;        <div class="column">&ndash;&gt;-->
+<!--&lt;!&ndash;          &lt;!&ndash; Learned representaton. &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;          <div class="content">&ndash;&gt;-->
+<!--&lt;!&ndash;            <img src="imgs/audio/style_space_visualization/style_space_Z.png"&ndash;&gt;-->
+<!--&lt;!&ndash;                     class="interpolation-image"&ndash;&gt;-->
+<!--&lt;!&ndash;                      alt="Interpolate start reference image."/>&ndash;&gt;-->
+<!--&lt;!&ndash;          </div>&ndash;&gt;-->
+<!--&lt;!&ndash;        </div>&ndash;&gt;-->
+<!--&lt;!&ndash;        <div class="column">&ndash;&gt;-->
+<!--&lt;!&ndash;          &lt;!&ndash; Learned representaton. &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;          <div class="content">&ndash;&gt;-->
+<!--&lt;!&ndash;            <img src="imgs/audio/style_space_visualization/style_space_IH.png"&ndash;&gt;-->
+<!--&lt;!&ndash;                     class="interpolation-image"&ndash;&gt;-->
+<!--&lt;!&ndash;                      alt="Interpolate start reference image."/>&ndash;&gt;-->
+<!--&lt;!&ndash;          </div>&ndash;&gt;-->
+<!--&lt;!&ndash;        </div>&ndash;&gt;-->
+<!--&lt;!&ndash;      </div>&ndash;&gt;-->
+
+<!--    <h3 class="title is-4">Image Domain</h3>-->
+
+<!--      <h4 class="title is-5">Content representation and bipartite graph</h4>-->
+<!--      <p>Content representation and the corresponding co-occurrence map in Celeba-wild (left) and DeepFashion (right) dataset.</p>-->
+<!--      <br />-->
+<!--      <div class="columns is-centered">-->
+<!--        <div class="column">-->
+<!--          &lt;!&ndash; Learned representaton. &ndash;&gt;-->
+<!--          <div class="content">-->
+<!--            <img src="imgs/image/Appendix_celeba_co_map_xylabel.png"-->
+<!--                     class="interpolation-image"-->
+<!--                      alt="Interpolate start reference image."/>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        <div class="column">-->
+<!--          &lt;!&ndash; Learned representaton. &ndash;&gt;-->
+<!--          <div class="content">-->
+<!--            <img src="imgs/image/Appendix_deepfashion_co_map_xylabel.png"-->
+<!--                     class="interpolation-image"-->
+<!--                      alt="Interpolate start reference image."/>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+
+<!--      <h4 class="title is-5">Style tokens t-SNE</h4>-->
+<!--      <p>Among our style vectors, some of which are strongly correlated with human-defined attributes.-->
+<!--        Here we show style vector #43 in Deepfashion dataset is highly correlated with the color of the clothes.-->
+<!--        Different clothes colors are labeled in the corresponding colors</p>-->
+<!--      <div class="columns is-centered">-->
+<!--        <div class="column is-full">-->
+<!--          &lt;!&ndash; Learned representaton. &ndash;&gt;-->
+<!--          <div class="content">-->
+<!--            <img src="imgs/image/style_space/dress_color7.png"-->
+<!--                     class="interpolation-image"-->
+<!--                      alt="Interpolate start reference image."/>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+
+<!--      <p>Some other style vectors are collectively correlated with human-defined attributes.-->
+<!--        In below shows a style space constructed by concatenating 14 style vectors. Men are labeled in blue, while women are labeled in red.-->
+<!--        A clear boundary is shown between the two genders.-->
+<!--      </p>-->
+<!--      <div class="columns is-centered">-->
+<!--        <div class="column is-full">-->
+<!--          &lt;!&ndash; Learned representaton. &ndash;&gt;-->
+<!--          <div class="content">-->
+<!--            <img src="imgs/image/style_space/gender.png"-->
+<!--                     class="interpolation-image"-->
+<!--                      alt="Interpolate start reference image."/>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--  </div>-->
+<!--</section>-->
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+    <h3 class="title is-3">Image Domain</h3></div>
+      <div class="columns is-centered">
+        <div class="column">
+
+          <div class="hr"></div>
+          <h5 class="title is-4">Co-Part Segmentation</h5>
+          <!-- Learned representaton. -->
+          <div class="content">
+            <img src="imgs/image/co-part.png"
+                     class="interpolation-image"
+                      alt="Interpolate start reference image."/>
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="columns is-centered">
+        <div class="column">
+          <h5 class="title is-4">Shape-Appearance Transfer</h5>
+          <!-- Learned representaton. -->
+          <div class="content">
+            <img src="videos/global_style_transfer.png"
+                     class="interpolation-image"
+                      alt="Interpolate start reference image."/>
+          </div>
+        </div>
+        <div class="column">
+          <h5 class="title is-4">Part-Level Style Transfer</h5>
+          <!-- Learned representaton. -->
+          <div class="content">
+            <video id="part-style-transfer" autoplay muted loop height="100%">
+                <source src="videos/part_style_transfer_simu.mp4"
+                        type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+  </div>
+</section>
+
+<div style="padding: 12px;"></div>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+    <h3 class="title is-3">Speech Domain</h3></div>
+
+    <div class="hr"></div>
+
+    <h4 class="title is-4">Zero-Shot Voice Conversion</h4>
+<!--    <h5 class="title is-6">Note:</h5>-->
+<!--			<p>1. To distinguish all the details of different conversion results, please wear headphones when listening to the following samples.</p>-->
+<!--			<p>2. 'target' means the voice conversion system extracts style information directly from the utterance in this column.</p>-->
+<!--			<p>3. 'authentic target' is shown for the convenience of comparison. It shows the real recording of the target speaker speaking the same sentence as source utterance.-->
+<!--			However, the voice conversion system does not use this authentic target utterance when converting the voice. Instead, other utterances spoken by the same target speaker are fed into the voice conversion system for style extraction.</p>-->
+<!--            <br />-->
+<div style="padding: 12px;"></div>
+
+    <h5 class="title is-5">Librispeech Samples</h5>
+      <div class="panel-body" style="height: 350px; overflow-y:hidden">
+          <div style="border: 1px  #000000; width: 90%; margin: 0 auto;">
+                <span>
+                    <table><thead><tr>
+                    <th style="text-align: center">Source</th>
+                    <th style="text-align: center">Target</th>
+                    <th style="text-align: center">Converted</th>
+                    </tr></thead>
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/src/40.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/tar/40.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/cvt/40.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/src/80.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/tar/80.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/cvt/80.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/src/180.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/tar/180.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/cvt/180.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/src/200.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/tar/200.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/cvt/200.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/src/220.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/tar/220.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/librispeech/cvt/220.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+                    </table>
+                </span>
+          </div>
+      </div>
+
+    <br />
+    <h5 class="title is-5">System Comparison</h5>
+      <div class="panel-body" style="height: 300px; overflow-y:hidden">
+          <div style="border: 1px  #000000; width: 90%; margin: 0 auto;">
+                <span>
+                    <table><thead><tr>
+                    <th style="text-align: center">Source</th>
+                    <th style="text-align: center">Authentic Target</th>
+                    <th style="text-align: center">AutoVC</th>
+                    <th style="text-align: center">AdaIN-VC</th>
+                    <th style="text-align: center">FragmentVC</th>
+                    <th style="text-align: center">S2VC</th>
+                    <th style="text-align: center">Retriever(ours)</th>
+                    </tr></thead>
+        <!--			<tbody><tr>-->
+        <!--			<td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/src/140.wav" autoplay="">Your browser does not support the audio element.</audio></td>-->
+        <!--			<td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/tar/140.wav" autoplay="">Your browser does not support the audio element.</audio></td>-->
+        <!--			<td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/AutoVC/140.wav" autoplay="">Your browser does not support the audio element.</audio></td>-->
+        <!--			<td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/AdaIN-VC/140.wav" autoplay="">Your browser does not support the audio element.</audio></td>-->
+        <!--			<td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/FragmentVC/140.wav" autoplay="">Your browser does not support the audio element.</audio></td>-->
+        <!--			<td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/S2VC/140.wav" autoplay="">Your browser does not support the audio element.</audio></td>-->
+        <!--			<td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/Retriever/140.wav" autoplay="">Your browser does not support the audio element.</audio></td>-->
+        <!--			</tr></tbody>-->
+
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/src/40.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/tar/40.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/AutoVC/40.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/AdaIN-VC/40.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/FragmentVC/40.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/S2VC/40.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/Retriever/40.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/src/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/tar/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/AutoVC/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/AdaIN-VC/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/FragmentVC/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/S2VC/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/Retriever/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/src/590.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/tar/590.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/AutoVC/590.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/AdaIN-VC/590.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/FragmentVC/590.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/S2VC/590.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/Retriever/590.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/src/830.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/tar/830.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/AutoVC/830.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/AdaIN-VC/830.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/FragmentVC/830.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/S2VC/830.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/system_comparison/Retriever/830.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+                    </table>
+                </span>
+          </div>
+      </div>
+
+    <br />
+    <h5 class="title is-5">Ablation Study</h5>
+      <div class="panel-body" style="height: 200px; overflow-y:hidden">
+          <div style="border: 1px  #000000; width: 90%; margin: 0 auto;">
+                <span>
+                    <table><thead><tr>
+                    <th style="text-align: center">Source</th>
+                    <th style="text-align: center">Authentic Target</th>
+                    <th style="text-align: center">Too narrow bottleneck</th>
+                    <th style="text-align: center">Too wide bottleneck</th>
+                    <th style="text-align: center">AdaIN decoder</th>
+                    <th style="text-align: center">Retriever</th>
+                    </tr></thead>
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/src/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/tar/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/too_narrow/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/too_wide/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/AdaIN_decoder/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/Retriever/340.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/src/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/tar/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/too_narrow/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/too_wide/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/AdaIN_decoder/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/ablation/Retriever/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+                    </table>
+                </span>
+          </div>
+      </div>
+
+    <br />
+    <h5 class="title is-5">Conversion results of using different number of style token</h5>
+      <div class="panel-body" style="height: 250px; overflow-y:hidden">
+          <div style="border: 1px  #000000; width: 90%; margin: 0 auto;">
+                <span>
+                    <table><thead><tr>
+                    <th style="text-align: center">Source</th>
+                    <th style="text-align: center">Authentic Target</th>
+                    <th style="text-align: center">1 style token</th>
+                    <th style="text-align: center">5 style tokens</th>
+                    <th style="text-align: center">10 style tokens</th>
+                    <th style="text-align: center">60 style tokens</th>
+                    </tr></thead>
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/src/120.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/tar/120.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/1/120.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/5/120.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/10/120.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/60/120.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/src/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/tar/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/1/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/5/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/10/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/60/360.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/src/440.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/tar/440.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/1/440.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/5/440.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/10/440.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/N_style_token/60/440.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+			        </table>
+                </span>
+          </div>
+      </div>
+
+
+    <br />
+    <h5 class="title is-5">Conversion result of using different number of target utterances during inference</h5>
+      <div class="panel-body" style="height: 150px; overflow-y:hidden">
+          <div style="border: 1px  #000000; width: 90%; margin: 0 auto;">
+                <span>
+                    <table><thead><tr>
+                    <th style="text-align: center">Source</th>
+                    <th style="text-align: center">Authentic Target</th>
+                    <th style="text-align: center">1 target utterance</th>
+                    <th style="text-align: center">3 target utterance</th>
+                    <th style="text-align: center">5 target utterance</th>
+                    <th style="text-align: center">10 target utterance</th>
+                    </tr></thead>
+                    <tbody><tr>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/inference_scalability/src/180.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/inference_scalability/tar/180.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/inference_scalability/1/180.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/inference_scalability/3/180.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/inference_scalability/5/180.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    <td style="text-align: center"><audio controls="controls"><source src="./samples/inference_scalability/10/180.wav" autoplay="">Your browser does not support the audio element.</audio></td>
+                    </tr></tbody>
+                    </table>
+                </span>
+          </div>
+          <div class="hr"></div>
+      </div>
+    <br />
+  </div>
+
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@inproceedings{yin2022Retriever,
+  title   = {Retriever: Learning Content-Style Representation as a Token-Level Bipartite Graph},
+  author  = {Yin, Dacheng and Ren, Xuanchi and Luo, Chong and Wang, Yuwang, Xiong, Zhiwei, Zeng, Wenjun},
+  booktitle = {ICLR},
+  year    = {2022}
+}</code></pre>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/xrenaa/Retriever" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            Correspondence to <a href="">Dacheng Yin</a>. This website template is borrowed from <a
+              href="https://github.com/nerfies/nerfies.github.io">Here</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+</body>
+</html>
